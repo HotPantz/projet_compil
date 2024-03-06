@@ -1,42 +1,70 @@
 #include "lexer.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <ctype.h>
 
-// Function to get the next token
+static const char *input_ptr;
+
+// Fonction pour obtenir le prochain token
 Token getNextToken() {
-    char c = getchar();
-    
-    // Ignore spaces
-    while (isspace(c)) {
-        c = getchar();
+    Token token;
+    char buffer[20];
+    int i = 0;
+
+    // Ignorer les espaces
+    while (isspace(*input_ptr)) {
+        input_ptr++;
     }
-    
-    // Check for end of line
-    if (c == '\n') {
-        return (Token){TOKEN_EOL, 0};
+
+    // Fin de la saisie
+    if (*input_ptr == '\0') {
+        token.type = TOKEN_EOF;
+        return token;
     }
-    
-    // Check for operators and parentheses
-    if (c == '+') {
-        return (Token){TOKEN_PLUS, 0};
-    } else if (c == '-') {
-        return (Token){TOKEN_MINUS, 0};
-    } else if (c == '*') {
-        return (Token){TOKEN_MULTIPLY, 0};
-    } else if (c == '/') {
-        return (Token){TOKEN_DIVIDE, 0};
-    } else if (c == '(') {
-        return (Token){TOKEN_LPAREN, 0};
-    } else if (c == ')') {
-        return (Token){TOKEN_RPAREN, 0};
+
+    // Identifier le type de token
+    switch (*input_ptr) {
+        case '+':
+            token.type = TOKEN_PLUS;
+            input_ptr++;
+            return token;
+        case '-':
+            token.type = TOKEN_MINUS;
+            input_ptr++;
+            return token;
+        case '*':
+            token.type = TOKEN_MULTIPLY;
+            input_ptr++;
+            return token;
+        case '/':
+            token.type = TOKEN_DIVIDE;
+            input_ptr++;
+            return token;
+        case '(':
+            token.type = TOKEN_LPAREN;
+            input_ptr++;
+            return token;
+        case ')':
+            token.type = TOKEN_RPAREN;
+            input_ptr++;
+            return token;
     }
-    
-    // If it's a digit or a decimal point, parse the number
-    if (isdigit(c) || c == '.') {
-        ungetc(c, stdin);
-        double value;
-        scanf("%lf", &value);
-        return (Token){TOKEN_NUMBER, value};
+
+    // Lire les nombres flottants ou entiers
+    while (isdigit(*input_ptr) || *input_ptr == '.') {
+        buffer[i++] = *input_ptr++;
     }
-    
-    // Unknown token
-    return (Token){TOKEN_UNKNOWN, 0};
+    buffer[i] = '\0';
+
+    // Convertir le buffer en float
+    token.type = TOKEN_FLOAT;
+    token.value = atof(buffer); // Conversion du buffer en float
+
+    return token;
+}
+
+// Fonction pour définir la nouvelle entrée
+void setInput(const char *input) {
+    input_ptr = input;
 }
