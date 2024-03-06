@@ -11,13 +11,13 @@ Utilisation
 
 Pour utiliser la calculatrice, suivez les étapes suivantes :
 
-    Téléchargez les fichiers source du projet.
-    Compilez le code en utilisant la commande make.
-    Exécutez le programme en lançant l'exécutable calc.
-    Saisissez les opérations que vous souhaitez effectuer et appuyez sur Entrée.
-    Pour quitter la calculatrice, entrez la commande "q".
+-   Téléchargez les fichiers source du projet.
+-   Compilez le code en utilisant la commande make.
+-   Exécutez le programme en lançant l'exécutable calc.
+-   Saisissez les opérations que vous souhaitez effectuer et appuyez sur Entrée.
+-   Pour quitter la calculatrice, entrez la commande "q".
 
-Exemple d'utilisation :
+### Exemple d'utilisation :
 
 shell
 
@@ -34,22 +34,22 @@ $ ./calc
 > q
 $ 
 
-Structure du projet
+## Structure du projet
 
 Le projet est organisé comme suit :
 
-    src/ : répertoire contenant les fichiers source du programme.
-    Makefile : fichier pour compiler le programme.
-    README.md : ce fichier, contenant des informations sur le projet.
-    rapport.pdf : rapport détaillé sur le projet, expliquant les choix d'implémentation et les structures de données utilisées.
+ -   src/ : répertoire contenant les fichiers source du programme.
+ -   Makefile : fichier pour compiler le programme.
+ -   README.md : ce fichier, contenant des informations sur le projet.
+ -   rapport.pdf : rapport détaillé sur le projet, expliquant les choix d'implémentation et les structures de données utilisées.
 
 ## Rapport
 
 Le rapport détaillé sur le projet est disponible dans le fichier rapport.pdf. Il explique les choix d'implémentation, les structures de données utilisées et les algorithmes mis en œuvre pour l'analyse lexicale et syntaxique.
 Améliorations possibles
 
-    Gérer d'autres opérations telles que la différence, la division et le moins unaire.
-    Ajouter la prise en charge d'autres fonctions mathématiques telles que les racines carrées, les logarithmes et les exponentielles.
-    Implémenter la gestion des variables pour les affectations et les utilisations.
+-   Gérer d'autres opérations telles que la différence, la division et le moins unaire.
+-   Ajouter la prise en charge d'autres fonctions mathématiques telles que les racines carrées, les logarithmes et les exponentielles.
+-   Implémenter la gestion des variables pour les affectations et les utilisations.
 
 Pour toute question ou commentaire, n'hésitez pas à me contacter à l'adresse suivante : devan.sohier@example.com.
