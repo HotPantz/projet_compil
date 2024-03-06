@@ -37,6 +37,8 @@ void parseExpression() {
             case TOKEN_MINUS:
             case TOKEN_MULTIPLY:
             case TOKEN_DIVIDE:
+            case TOKEN_LPAREN:
+            case TOKEN_RPAREN:
                 storeToken(token.type, 0);
                 break;
             case TOKEN_FLOAT:
@@ -50,7 +52,8 @@ void parseExpression() {
 
     // Calculer le résultat final en utilisant les tokens stockés
     float result = 0;
-    float currentOperand = 0;
+    float currentTerm = 0;
+    float currentFactor = 1; // Facteur initial
     TokenType lastOperator = TOKEN_PLUS; // Opérateur initial
 
     for (int i = 0; i < numTokens; i++) {
@@ -59,61 +62,78 @@ void parseExpression() {
         switch (tokenEntry.type) {
             case TOKEN_PLUS:
             case TOKEN_MINUS:
-            case TOKEN_MULTIPLY:
-            case TOKEN_DIVIDE:
-                // Traiter l'opérateur précédent et mettre à jour le dernier opérateur
+                // Traiter l'opérateur précédent
                 switch (lastOperator) {
                     case TOKEN_PLUS:
-                        result += currentOperand;
+                        result += currentTerm * currentFactor;
                         break;
                     case TOKEN_MINUS:
-                        result -= currentOperand;
-                        break;
-                    case TOKEN_MULTIPLY:
-                        result *= currentOperand;
-                        break;
-                    case TOKEN_DIVIDE:
-                        if (currentOperand != 0) {
-                            result /= currentOperand;
-                        } else {
-                            printf("Erreur : Division par zéro\n");
-                            return;
-                        }
+                        result -= currentTerm * currentFactor;
                         break;
                     default:
                         break;
                 }
+                currentTerm = 0;
+                currentFactor = 1;
                 lastOperator = tokenEntry.type;
-                currentOperand = 0;
+                break;
+            case TOKEN_MULTIPLY:
+            case TOKEN_DIVIDE:
+                // Mettre à jour le facteur courant pour la multiplication et la division
+                if (tokenEntry.type == TOKEN_MULTIPLY) {
+                    currentFactor *= tokenEntries[++i].value;
+                } else {
+                    if (tokenEntries[++i].value != 0) {
+                        currentFactor /= tokenEntries[i].value;
+                    } else {
+                        printf("Erreur : Division par zéro\n");
+                        return;
+                    }
+                }
                 break;
             case TOKEN_FLOAT:
             case TOKEN_INTEGER:
-                // Mettre à jour l'opérande courante
-                currentOperand = tokenEntry.value;
+                // Mettre à jour le terme courant
+                currentTerm = tokenEntry.value;
+                break;
+            case TOKEN_LPAREN:
+                {
+                    // Trouver l'index correspondant de la parenthèse fermante
+                    int closingParenIndex = i + 1;
+                    int depth = 1;
+                    while (closingParenIndex < numTokens && depth > 0) {
+                        if (tokenEntries[closingParenIndex++].type == TOKEN_LPAREN) {
+                            depth++;
+                        } else if (tokenEntries[closingParenIndex - 1].type == TOKEN_RPAREN) {
+                            depth--;
+                        }
+                    }
+                    // Extraire les tokens entre les parenthèses et récursivement évaluer l'expression
+                    TokenEntry subExpression[MAX_TOKENS];
+                    int subExpressionLength = closingParenIndex - i - 2;
+                    for (int j = i + 1; j < closingParenIndex - 1; j++) {
+                        subExpression[j - i - 1] = tokenEntries[j];
+                    }
+                    numTokens = i; // Réinitialiser numTokens pour évaluer uniquement la sous-expression
+                    for (int j = 0; j < subExpressionLength; j++) {
+                        tokenEntries[j] = subExpression[j];
+                    }
+                    parseExpression(); // Évaluer récursivement la sous-expression
+                    i = closingParenIndex - 2; // Avancer l'index de l'expression principale jusqu'à la parenthèse fermante
+                }
                 break;
             default:
                 break;
         }
     }
 
-    // Traiter le dernier opérande
+    // Traiter le dernier terme
     switch (lastOperator) {
         case TOKEN_PLUS:
-            result += currentOperand;
+            result += currentTerm * currentFactor;
             break;
         case TOKEN_MINUS:
-            result -= currentOperand;
-            break;
-        case TOKEN_MULTIPLY:
-            result *= currentOperand;
-            break;
-        case TOKEN_DIVIDE:
-            if (currentOperand != 0) {
-                result /= currentOperand;
-            } else {
-                printf("Erreur : Division par zéro\n");
-                return;
-            }
+            result -= currentTerm * currentFactor;
             break;
         default:
             break;
