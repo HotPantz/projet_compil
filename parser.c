@@ -1,144 +1,149 @@
-// parser.c
-
 #include "parser.h"
 #include <stdio.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
-// Tableau pour stocker les tokens analysés
-TokenEntry tokenEntries[MAX_TOKENS];
-int numTokens = 0;
+typedef struct StackNode {
+    float value;
+    struct StackNode *next;
+} StackNode;
 
-// Fonction pour stocker les tokens analysés
-void storeToken(TokenType type, float value) {
-    TokenEntry entry;
-    entry.type = type;
-    entry.value = value;
-    tokenEntries[numTokens++] = entry;
+typedef struct OpStackNode {
+    TokenType type;
+    struct OpStackNode *next;
+} OpStackNode;
+
+// Fonctions pour la pile d'opérandes
+StackNode* pushOperand(StackNode **top, float value) {
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    if (!newNode) {
+        perror("Failed to allocate memory for operand node");
+        exit(EXIT_FAILURE);
+    }
+    newNode->value = value;
+    newNode->next = *top;
+    *top = newNode;
+    return newNode;
 }
 
-// Fonction pour parser une expression
+float popOperand(StackNode **top) {
+    if (*top == NULL) {
+        printf("Operand stack underflow\n");
+        exit(EXIT_FAILURE);
+    }
+    StackNode* tempNode = *top;
+    float value = tempNode->value;
+    *top = tempNode->next;
+    free(tempNode);
+    return value;
+}
+
+// Fonctions pour la pile d'opérateurs
+OpStackNode* pushOperator(OpStackNode **top, TokenType type) {
+    OpStackNode* newNode = (OpStackNode*)malloc(sizeof(OpStackNode));
+    if (!newNode) {
+        perror("Failed to allocate memory for operator node");
+        exit(EXIT_FAILURE);
+    }
+    newNode->type = type;
+    newNode->next = *top;
+    *top = newNode;
+    return newNode;
+}
+
+TokenType popOperator(OpStackNode **top) {
+    if (*top == NULL) {
+        printf("Operator stack underflow\n");
+        exit(EXIT_FAILURE);
+    }
+    OpStackNode* tempNode = *top;
+    TokenType type = tempNode->type;
+    *top = tempNode->next;
+    free(tempNode);
+    return type;
+}
+
+// Vérifie si l'opérateur est '+' ou '-'
+bool isLowPrecedenceOperator(TokenType type) {
+    return type == TOKEN_PLUS || type == TOKEN_MINUS;
+}
+
+// Vérifie si l'opérateur est '*' ou '/'
+bool isHighPrecedenceOperator(TokenType type) {
+    return type == TOKEN_MULTIPLY || type == TOKEN_DIVIDE;
+}
+
+// Applique un opérateur à deux opérandes
+float applyOperator(float operand1, float operand2, TokenType operator) {
+    switch (operator) {
+        case TOKEN_PLUS: return operand1 + operand2;
+        case TOKEN_MINUS: return operand1 - operand2;
+        case TOKEN_MULTIPLY: return operand1 * operand2;
+        case TOKEN_DIVIDE:
+            if (operand2 == 0) {
+                printf("Division by zero error.\n");
+                exit(EXIT_FAILURE);
+            }
+            return operand1 / operand2;
+        default:
+            printf("Unknown operator error.\n");
+            exit(EXIT_FAILURE);
+    }
+}
+
+// Évalue l'expression en tenant compte des priorités des opérateurs
+void evaluateExpressionWithPrecedence(StackNode **operands, OpStackNode **operators) {
+    while (*operators != NULL) {
+        TokenType operator = popOperator(operators);
+        float operand2 = popOperand(operands);
+        float operand1 = popOperand(operands);
+        float result = applyOperator(operand1, operand2, operator);
+        pushOperand(operands, result);
+    }
+}
+
 void parseExpression() {
+    StackNode *operandStack = NULL;
+    OpStackNode *operatorStack = NULL;
     Token token;
 
-    // Réinitialiser le tableau des tokens
-    numTokens = 0;
-
-    // Analyser les tokens et les stocker
     while (true) {
         token = getNextToken();
+        if (token.type == TOKEN_EOF) break;
 
-        if (token.type == TOKEN_EOF || token.type == TOKEN_UNKNOWN) {
-            // Fin de l'expression ou token inconnu
-            break;
-        }
-
-        switch (token.type) {
-            case TOKEN_PLUS:
-            case TOKEN_MINUS:
-            case TOKEN_MULTIPLY:
-            case TOKEN_DIVIDE:
-            case TOKEN_LPAREN:
-            case TOKEN_RPAREN:
-                storeToken(token.type, 0);
-                break;
-            case TOKEN_FLOAT:
-            case TOKEN_INTEGER:
-                storeToken(token.type, token.value);
-                break;
-            default:
-                break;
+        if (token.type == TOKEN_FLOAT) {
+            pushOperand(&operandStack, token.value);
+        } else if (isLowPrecedenceOperator(token.type) || isHighPrecedenceOperator(token.type)) {
+            pushOperator(&operatorStack, token.type);
+        } else if (token.type == TOKEN_LPAREN) {
+            // Traitement spécifique pour les parenthèses ouvrantes
+        } else if (token.type == TOKEN_RPAREN) {
+            // Traitement spécifique pour les parenthèses fermantes, y compris l'évaluation de l'expression parenthésée
         }
     }
 
-    // Calculer le résultat final en utilisant les tokens stockés
-    float result = 0;
-    float currentTerm = 0;
-    float currentFactor = 1; // Facteur initial
-    TokenType lastOperator = TOKEN_PLUS; // Opérateur initial
+    evaluateExpressionWithPrecedence(&operandStack, &operatorStack);
 
-    for (int i = 0; i < numTokens; i++) {
-        TokenEntry tokenEntry = tokenEntries[i];
-
-        switch (tokenEntry.type) {
-            case TOKEN_PLUS:
-            case TOKEN_MINUS:
-                // Traiter l'opérateur précédent
-                switch (lastOperator) {
-                    case TOKEN_PLUS:
-                        result += currentTerm * currentFactor;
-                        break;
-                    case TOKEN_MINUS:
-                        result -= currentTerm * currentFactor;
-                        break;
-                    default:
-                        break;
-                }
-                currentTerm = 0;
-                currentFactor = 1;
-                lastOperator = tokenEntry.type;
-                break;
-            case TOKEN_MULTIPLY:
-            case TOKEN_DIVIDE:
-                // Mettre à jour le facteur courant pour la multiplication et la division
-                if (tokenEntry.type == TOKEN_MULTIPLY) {
-                    currentFactor *= tokenEntries[++i].value;
-                } else {
-                    if (tokenEntries[++i].value != 0) {
-                        currentFactor /= tokenEntries[i].value;
-                    } else {
-                        printf("Erreur : Division par zéro\n");
-                        return;
-                    }
-                }
-                break;
-            case TOKEN_FLOAT:
-            case TOKEN_INTEGER:
-                // Mettre à jour le terme courant
-                currentTerm = tokenEntry.value;
-                break;
-            case TOKEN_LPAREN:
-                {
-                    // Trouver l'index correspondant de la parenthèse fermante
-                    int closingParenIndex = i + 1;
-                    int depth = 1;
-                    while (closingParenIndex < numTokens && depth > 0) {
-                        if (tokenEntries[closingParenIndex++].type == TOKEN_LPAREN) {
-                            depth++;
-                        } else if (tokenEntries[closingParenIndex - 1].type == TOKEN_RPAREN) {
-                            depth--;
-                        }
-                    }
-                    // Extraire les tokens entre les parenthèses et récursivement évaluer l'expression
-                    TokenEntry subExpression[MAX_TOKENS];
-                    int subExpressionLength = closingParenIndex - i - 2;
-                    for (int j = i + 1; j < closingParenIndex - 1; j++) {
-                        subExpression[j - i - 1] = tokenEntries[j];
-                    }
-                    numTokens = i; // Réinitialiser numTokens pour évaluer uniquement la sous-expression
-                    for (int j = 0; j < subExpressionLength; j++) {
-                        tokenEntries[j] = subExpression[j];
-                    }
-                    parseExpression(); // Évaluer récursivement la sous-expression
-                    i = closingParenIndex - 2; // Avancer l'index de l'expression principale jusqu'à la parenthèse fermante
-                }
-                break;
-            default:
-                break;
+    if (operandStack != NULL) {
+        float finalResult = popOperand(&operandStack);
+        if (operandStack != NULL) {
+            printf("Error: Stack not empty after evaluation.\n");
+        } else {
+            printf("Result: %.2f\n", finalResult);
         }
+    } else {
+        printf("Error: Operand stack is empty.\n");
     }
 
-    // Traiter le dernier terme
-    switch (lastOperator) {
-        case TOKEN_PLUS:
-            result += currentTerm * currentFactor;
-            break;
-        case TOKEN_MINUS:
-            result -= currentTerm * currentFactor;
-            break;
-        default:
-            break;
+    // Libérer la mémoire si nécessaire
+    while (operandStack != NULL) {
+        StackNode *temp = operandStack;
+        operandStack = operandStack->next;
+        free(temp);
     }
 
-    // Afficher le résultat final
-    printf("Result: %.6f\n", result);
+    while (operatorStack != NULL) {
+        OpStackNode *temp = operatorStack;
+        operatorStack = operatorStack->next;
+        free(temp);
+    }
 }
