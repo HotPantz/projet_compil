@@ -1,3 +1,5 @@
+//Selyan Kablia et Nathan Lestrade
+
 #include "lexer.h"
 #include <stdio.h>
 #include <stdlib.h>

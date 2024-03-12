@@ -1,3 +1,5 @@
+//Selyan Kablia et Nathan Lestrade
+
 #ifndef EVALUATOR_H
 #define EVALUATOR_H
 

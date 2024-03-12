@@ -1,3 +1,5 @@
+//Selyan Kablia et Nathan Lestrade
+
 #ifndef LEXER_H
 #define LEXER_H
 

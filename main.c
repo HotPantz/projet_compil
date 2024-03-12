@@ -1,3 +1,5 @@
+//Selyan Kablia et Nathan Lestrade
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -72,40 +74,40 @@ int main() {
         }
         
         // Read the input
-    Token* tokens = tokenize(input);
+        Token* tokens = tokenize(input);
 
-    for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
-        switch (tokens[i].type) {
-            case TOKEN_NUMBER:
-                printf("%f ", tokens[i].value);
-                break;
-            case TOKEN_PLUS:
-                printf("+ ");
-                break;
-            case TOKEN_MULTIPLY:
-                printf("* ");
-                break;
-            case TOKEN_LPAREN:
-                printf("( ");
-                break;
-            case TOKEN_RPAREN:
-                printf(") ");
-                break;
-            default:
-                printf("Unknown token ");
+        for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
+            switch (tokens[i].type) {
+                case TOKEN_NUMBER:
+                    printf("%f ", tokens[i].value);
+                    break;
+                case TOKEN_PLUS:
+                    printf("+ ");
+                    break;
+                case TOKEN_MULTIPLY:
+                    printf("* ");
+                    break;
+                case TOKEN_LPAREN:
+                    printf("( ");
+                    break;
+                case TOKEN_RPAREN:
+                    printf(") ");
+                    break;
+                default:
+                    printf("Unknown token ");
+            }
         }
-    }
-    printf("\n");
+        printf("\n");
 
-    // Call the parse function
-    parse(tokens, parsingTable, gotoTable);
+        // Call the parse function
+        parse(tokens, parsingTable, gotoTable);
 
-    // Evaluate the parsed expression
-    double result = evaluateExpression(tokens);
+        // Evaluate the parsed expression
+        double result = evaluateExpression(tokens);
 
-    // Print the result
-    printf("Result: %.2f\n", result);
-   
+        // Print the result
+        printf("Result: %.2f\n", result);
+    
     }
 
     return 0;

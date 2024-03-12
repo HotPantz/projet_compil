@@ -1,3 +1,5 @@
+//Selyan Kablia et Nathan Lestrade
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
@@ -78,7 +80,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
-
+                printf("")
                 free(stack->data);
                 free(stack);
                 return 0;
