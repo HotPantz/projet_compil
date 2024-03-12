@@ -80,7 +80,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
-                printf("")
                 free(stack->data);
                 free(stack);
                 return 0;
