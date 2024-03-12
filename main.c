@@ -15,7 +15,7 @@ int main() {
     }
 
     // Fill in the parsing table
-    parsingTable[0][2] = D2; // d2
+    parsingTable[0][3] = D2; // d2
     parsingTable[0][5] = D3; // d3
     parsingTable[1][1] = D4; // d4
     parsingTable[1][2] = D5; // d5
@@ -71,38 +71,35 @@ int main() {
         }
         
         // Read the input
-Token* tokens = tokenize(input);
+    Token* tokens = tokenize(input);
 
-// Print the tokens
-printf("Tokens in the input: ");
-for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
-    switch (tokens[i].type) {
-        case TOKEN_NUMBER:
-            printf("%f ", tokens[i].value);
-            break;
-        case TOKEN_PLUS:
-            printf("+ ");
-            break;
-        case TOKEN_MULTIPLY:
-            printf("* ");
-            break;
-        case TOKEN_LPAREN:
-            printf("( ");
-            break;
-        case TOKEN_RPAREN:
-            printf(") ");
-            break;
-        default:
-            printf("Unknown token ");
+    // Print the tokens
+    printf("Tokens in the input: ");
+    for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
+        switch (tokens[i].type) {
+            case TOKEN_NUMBER:
+                printf("%f ", tokens[i].value);
+                break;
+            case TOKEN_PLUS:
+                printf("+ ");
+                break;
+            case TOKEN_MULTIPLY:
+                printf("* ");
+                break;
+            case TOKEN_LPAREN:
+                printf("( ");
+                break;
+            case TOKEN_RPAREN:
+                printf(") ");
+                break;
+            default:
+                printf("Unknown token ");
+        }
     }
-}
-printf("\n");
+    printf("\n");
 
-// Call the parse function
-parse(tokens, parsingTable, gotoTable);
-    }
-
-    
+    // Call the parse function
+    parse(tokens, parsingTable, gotoTable);
 
     return 0;
 }
