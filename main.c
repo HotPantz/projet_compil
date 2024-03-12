@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "lexer.h"
 #include "parser.h"
+#include "calculator.h"
 
 
 
@@ -71,35 +72,42 @@ int main() {
         }
         
         // Read the input
-        Token* tokens = tokenize(input);
+    Token* tokens = tokenize(input);
 
-        // Print the tokens
-        printf("Tokens in the input: ");
-        for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
-            switch (tokens[i].type) {
-                case TOKEN_NUMBER:
-                    printf("%f ", tokens[i].value);
-                    break;
-                case TOKEN_PLUS:
-                    printf("+ ");
-                    break;
-                case TOKEN_MULTIPLY:
-                    printf("* ");
-                    break;
-                case TOKEN_LPAREN:
-                    printf("( ");
-                    break;
-                case TOKEN_RPAREN:
-                    printf(") ");
-                    break;
-                default:
-                    printf("Unknown token ");
-            }
+    for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
+        switch (tokens[i].type) {
+            case TOKEN_NUMBER:
+                printf("%f ", tokens[i].value);
+                break;
+            case TOKEN_PLUS:
+                printf("+ ");
+                break;
+            case TOKEN_MULTIPLY:
+                printf("* ");
+                break;
+            case TOKEN_LPAREN:
+                printf("( ");
+                break;
+            case TOKEN_RPAREN:
+                printf(") ");
+                break;
+            default:
+                printf("Unknown token ");
         }
-        printf("\n");
-
-        // Call the parse function
-        parse(tokens, parsingTable, gotoTable);
     }
+    printf("\n");
+
+    // Call the parse function
+    parse(tokens, parsingTable, gotoTable);
+
+    // Evaluate the parsed expression
+    double result = evaluateExpression(tokens);
+
+    // Print the result
+    printf("Result: %.2f\n", result);
+   
+    }
+
     return 0;
+
 }
