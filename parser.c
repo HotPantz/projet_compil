@@ -1,149 +1,90 @@
-#include "parser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "parser.h"
 
-typedef struct StackNode {
-    float value;
-    struct StackNode *next;
-} StackNode;
 
-typedef struct OpStackNode {
-    TokenType type;
-    struct OpStackNode *next;
-} OpStackNode;
+Stack* createStack(int size) {
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    stack->data = (int*)malloc(size * sizeof(int));
+    stack->top = -1;
+    stack->size = size;
+    return stack;
+}
 
-// Fonctions pour la pile d'opérandes
-StackNode* pushOperand(StackNode **top, float value) {
-    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
-    if (!newNode) {
-        perror("Failed to allocate memory for operand node");
-        exit(EXIT_FAILURE);
+void push(Stack* stack, int value) {
+    if (stack->top == stack->size - 1) {
+        // stack is full, resize it
+        stack->size *= 2;
+        stack->data = (int*)realloc(stack->data, stack->size * sizeof(int));
     }
-    newNode->value = value;
-    newNode->next = *top;
-    *top = newNode;
-    return newNode;
+    stack->data[++stack->top] = value;
 }
 
-float popOperand(StackNode **top) {
-    if (*top == NULL) {
-        printf("Operand stack underflow\n");
-        exit(EXIT_FAILURE);
+int pop(Stack* stack) {
+    if (stack->top == -1) {
+        // stack is empty, return error
+        return -1;
     }
-    StackNode* tempNode = *top;
-    float value = tempNode->value;
-    *top = tempNode->next;
-    free(tempNode);
-    return value;
+    return stack->data[stack->top--];
 }
 
-// Fonctions pour la pile d'opérateurs
-OpStackNode* pushOperator(OpStackNode **top, TokenType type) {
-    OpStackNode* newNode = (OpStackNode*)malloc(sizeof(OpStackNode));
-    if (!newNode) {
-        perror("Failed to allocate memory for operator node");
-        exit(EXIT_FAILURE);
-    }
-    newNode->type = type;
-    newNode->next = *top;
-    *top = newNode;
-    return newNode;
-}
+int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES]) {
+    GrammarRule grammar[] = {
+        { PROD_E_PLUS_E, 3 },      // E -> E + E
+        { PROD_E_MUL_E, 3 },       // E -> E * E
+        { PROD_LPAREN_E_RPAREN, 3 }, // E -> (E)
+        { PROD_VAL, 1 }            // E -> val
+    };
+    Stack* stack = createStack(100);
+    push(stack, 0); // push the initial state
 
-TokenType popOperator(OpStackNode **top) {
-    if (*top == NULL) {
-        printf("Operator stack underflow\n");
-        exit(EXIT_FAILURE);
-    }
-    OpStackNode* tempNode = *top;
-    TokenType type = tempNode->type;
-    *top = tempNode->next;
-    free(tempNode);
-    return type;
-}
+    int i = 0;
+    while (1) {
+        int state = stack->data[stack->top];
+        printf("top: %d\n", stack->top);
+        
+        Token token = tokens[i];
 
-// Vérifie si l'opérateur est '+' ou '-'
-bool isLowPrecedenceOperator(TokenType type) {
-    return type == TOKEN_PLUS || type == TOKEN_MINUS;
-}
+        printf("Current state: %d\n", state);
+        printf("Current token type: %d\n", token.type);
+        
+        // lookup the action in the parsing table based on the current state and token
+        int action = parsingTable[state][token.type];
 
-// Vérifie si l'opérateur est '*' ou '/'
-bool isHighPrecedenceOperator(TokenType type) {
-    return type == TOKEN_MULTIPLY || type == TOKEN_DIVIDE;
-}
+        printf("Action: %d\n", action);
 
-// Applique un opérateur à deux opérandes
-float applyOperator(float operand1, float operand2, TokenType operator) {
-    switch (operator) {
-        case TOKEN_PLUS: return operand1 + operand2;
-        case TOKEN_MINUS: return operand1 - operand2;
-        case TOKEN_MULTIPLY: return operand1 * operand2;
-        case TOKEN_DIVIDE:
-            if (operand2 == 0) {
-                printf("Division by zero error.\n");
-                exit(EXIT_FAILURE);
+        if (action > 0) {
+            // shift
+            printf("Shifting...\n");
+            push(stack, action);
+            ++i;
+        } else if (action < 0) {
+            // reduce
+            printf("Reducing...\n");
+            GrammarRule rule = grammar[-action - 1]; // use the grammar here
+            for (int j = 0; j < rule.length; ++j) {
+                pop(stack);
             }
-            return operand1 / operand2;
-        default:
-            printf("Unknown operator error.\n");
-            exit(EXIT_FAILURE);
-    }
-}
-
-// Évalue l'expression en tenant compte des priorités des opérateurs
-void evaluateExpressionWithPrecedence(StackNode **operands, OpStackNode **operators) {
-    while (*operators != NULL) {
-        TokenType operator = popOperator(operators);
-        float operand2 = popOperand(operands);
-        float operand1 = popOperand(operands);
-        float result = applyOperator(operand1, operand2, operator);
-        pushOperand(operands, result);
-    }
-}
-
-void parseExpression() {
-    StackNode *operandStack = NULL;
-    OpStackNode *operatorStack = NULL;
-    Token token;
-
-    while (true) {
-        token = getNextToken();
-        if (token.type == TOKEN_EOF) break;
-
-        if (token.type == TOKEN_FLOAT) {
-            pushOperand(&operandStack, token.value);
-        } else if (isLowPrecedenceOperator(token.type) || isHighPrecedenceOperator(token.type)) {
-            pushOperator(&operatorStack, token.type);
-        } else if (token.type == TOKEN_LPAREN) {
-            // Traitement spécifique pour les parenthèses ouvrantes
-        } else if (token.type == TOKEN_RPAREN) {
-            // Traitement spécifique pour les parenthèses fermantes, y compris l'évaluation de l'expression parenthésée
-        }
-    }
-
-    evaluateExpressionWithPrecedence(&operandStack, &operatorStack);
-
-    if (operandStack != NULL) {
-        float finalResult = popOperand(&operandStack);
-        if (operandStack != NULL) {
-            printf("Error: Stack not empty after evaluation.\n");
+            // check if the stack is empty
+            if (stack->top == -1) {
+                // stack is empty, return error
+                printf("Syntax error: unexpected end of input\n");
+                return -1;
+            }
+            // push the new state based on the left-hand side of the rule and the current state
+            push(stack, gotoTable[stack->data[stack->top]]); // use followOfE here
+        } else if (action == 0) {
+            // accept
+            printf("Accepted!\n");
+            break;
         } else {
-            printf("Result: %.2f\n", finalResult);
+            // error
+            printf("Syntax error\n");
+            return -1;
         }
-    } else {
-        printf("Error: Operand stack is empty.\n");
     }
 
-    // Libérer la mémoire si nécessaire
-    while (operandStack != NULL) {
-        StackNode *temp = operandStack;
-        operandStack = operandStack->next;
-        free(temp);
-    }
-
-    while (operatorStack != NULL) {
-        OpStackNode *temp = operatorStack;
-        operatorStack = operatorStack->next;
-        free(temp);
-    }
+    free(stack->data);
+    free(stack);
+    return 0;
 }

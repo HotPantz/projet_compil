@@ -1,21 +1,34 @@
-// parser.h
-
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <stdbool.h>
 #include "lexer.h"
 
-// Définition de la taille maximale du tableau de tokens
-#define MAX_TOKENS 100
+#define NUM_STATES 10
+#define NUM_SYMBOLS 8
 
-// Structure pour représenter une entrée de token
 typedef struct {
-    TokenType type;
-    float value; // Utilisé pour les tokens de type FLOAT et INTEGER
-} TokenEntry;
+    int* data;
+    int top;
+    int size;
+} Stack;
 
-// Déclaration des fonctions
-void parseExpression();
-void storeToken(TokenType type, float value);
+Stack* createStack(int size); // Create a stack of given size
+void push(Stack* stack, int value); // Push a value onto the stack
+int pop(Stack* stack) ; // Pop a value from the stack
+int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES]) ; // Parse the input tokens using the given parsing table and follow set
+
+typedef enum {
+    PROD_E_PLUS_E,      // E -> E + E
+    PROD_E_MUL_E,       // E -> E * E
+    PROD_LPAREN_E_RPAREN, // E -> (E)
+    PROD_VAL            // E -> val
+} Production;
+
+typedef struct {
+    Production production;
+    int length;
+} GrammarRule;
+
 
 #endif /* PARSER_H */

@@ -1,33 +1,22 @@
-// lexer.h
-
 #ifndef LEXER_H
 #define LEXER_H
 
 #include <stdbool.h>
 
-// Définition des types de tokens
 typedef enum {
-    TOKEN_UNKNOWN,
-    TOKEN_EOF,
+    TOKEN_NUMBER,
     TOKEN_PLUS,
-    TOKEN_MINUS,
     TOKEN_MULTIPLY,
-    TOKEN_DIVIDE,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
-    TOKEN_FLOAT,
-    TOKEN_INTEGER // Nouveau type pour les nombres entiers
+    TOKEN_EOF
 } TokenType;
 
-// Structure pour représenter un token
-typedef struct {
+typedef struct { // Structur for token representation
     TokenType type;
-    float value; // Utilisé pour les tokens de type FLOAT
-    int integer_value; // Nouveau champ pour les tokens de type INTEGER
+    double value;
 } Token;
 
-// Déclaration des fonctions
-Token getNextToken();
-void setInput(const char *input);
+Token* tokenize(char* input); // Tokenize the input string
 
 #endif /* LEXER_H */

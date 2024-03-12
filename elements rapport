@@ -1,0 +1,635 @@
+HotPantz: tell me how did you get this table with the d and r rule i gave you i dont understand
+
+GitHub Copilot: The code you've provided is initializing and printing a Simple LR (SLR) parsing table. This table is used in compiler design to decide which grammar rule to apply during parsing. The table is typically constructed using a set of rules and states derived from the grammar of the language being parsed.
+
+However, the code you've provided doesn't show how the table is derived from the 'd' and 'r' rules you mentioned. The values in the table are hardcoded, and there's no logic in the provided code that uses any 'd' or 'r' rules to generate the table.
+
+The 'd' and 'r' rules are typically used in LR parsing tables:
+
+- 'd' stands for "shift" operation. It means the parser should take the next input symbol and shift it onto the stack.
+- 'r' stands for "reduce" operation. It means the parser should apply a grammar rule to reduce a string on the stack to a grammar symbol.
+
+To generate the parsing table, you would typically follow these steps:
+
+1. Construct the canonical collection of LR(0) items for your grammar.
+2. For each state in the canonical collection and each grammar symbol, determine if a shift or reduce operation should be performed and to which state the parser should transition.
+3. Fill in the parsing table with these operations and state transitions.
+
+This process is typically automated with a parser generator tool, as it can be quite complex for larger grammars. If you have specific 'd' and 'r' rules, you would need to implement the logic to generate the parsing table based on these rules.
+
+HotPantz: How can I construct a Simple LR (SLR) parsing table using the 'd' and 'r' rules?
+
+GitHub Copilot: Constructing a Simple LR (SLR) parsing table involves several steps. Here's a general outline of the process:
+
+1. **Define the Grammar**: Define the grammar for which you want to construct the parsing table. The grammar should be in the form of production rules.
+
+2. **Augment the Grammar**: Add an extra production rule which will be used to indicate the start of the parsing process.
+
+3. **Construct the Canonical Collection of LR(0) Items**: An LR(0) item is a production rule of the grammar with a dot at some position of the right side. The canonical collection is the set of all possible LR(0) items for the grammar.
+
+4. **Construct the Parsing Table**: For each state in the canonical collection and each grammar symbol, determine if a shift or reduce operation should be performed and to which state the parser should transition. This is where the 'd' and 'r' rules come into play:
+
+   - 'd' stands for "shift" operation. It means the parser should take the next input symbol and shift it onto the stack.
+   - 'r' stands for "reduce" operation. It means the parser should apply a grammar rule to reduce a string on the stack to a grammar symbol.
+
+5. **Handle Conflicts**: If any state in the parsing table has both a shift and a reduce operation for the same input symbol, the grammar is not SLR and you'll need to modify the grammar or use a more powerful parser.
+
+This process is typically automated with a parser generator tool, as it can be quite complex for larger grammars. If you're implementing this by hand, you'll need to write code that can perform each of these steps based on your specific grammar and 'd' and 'r' rules.
+
+HotPantz: E → E + E {E.val = E(1).val + E(2).val}
+| E ∗ E {E.val = E(1).val ∗ E(2).val}
+| (E) {E.place = E(1).val}
+| val {E.place = val.lex}
+
+here the grammar can you do step two
+
+GitHub Copilot: The second step in constructing an SLR parsing table is to augment the grammar. This involves adding an extra production rule which will be used to indicate the start of the parsing process.
+
+Given your grammar:
+
+```
+E → E + E {E.val = E(1).val + E(2).val}
+| E ∗ E {E.val = E(1).val ∗ E(2).val}
+| (E) {E.place = E(1).val}
+| val {E.place = val.lex}
+```
+
+We augment it by adding a new start symbol (let's call it `S`) and a new production rule `S → E`. The augmented grammar becomes:
+
+```
+S → E
+E → E + E {E.val = E(1).val + E(2).val}
+| E ∗ E {E.val = E(1).val ∗ E(2).val}
+| (E) {E.place = E(1).val}
+| val {E.place = val.lex}
+```
+
+This new start symbol `S` and its production rule `S → E` will be used to indicate the start of the parsing process. The original grammar is left unchanged, and the new start symbol does not interfere with the rest of the grammar.
+
+HotPantz: can you do step 3
+
+GitHub Copilot: Step 3 involves constructing the canonical collection of LR(0) items. An LR(0) item is a production rule of the grammar with a dot at some position of the right side. The canonical collection is the set of all possible LR(0) items for the grammar.
+
+Given the augmented grammar:
+
+```
+S → E
+E → E + E
+| E ∗ E
+| (E)
+| val
+```
+
+The initial LR(0) item is `S → .E`, indicating that we're at the start of the production for `S`.
+
+We then generate new items by applying two rules:
+
+1. **Closure Rule**: If we have an item `A → α.Bβ`, add `B → .γ` for each production `B → γ`.
+2. **Goto Rule**: If we have an item `A → α.Bβ`, add `A → αB.β` to the set of items for the symbol after the dot.
+
+Applying these rules, we get the following canonical collection of LR(0) items:
+
+```
+I0: 
+S → .E
+E → .E + E
+E → .E ∗ E
+E → .(E)
+E → .val
+
+I1: 
+S → E.
+E → E. + E
+E → E. ∗ E
+
+I2: 
+E → E + .E
+E → .E + E
+E → .E ∗ E
+E → .(E)
+E → .val
+
+I3: 
+E → E ∗ .E
+E → .E + E
+E → .E ∗ E
+E → .(E)
+E → .val
+
+I4: 
+E → ( .E )
+E → .E + E
+E → .E ∗ E
+E → .(E)
+E → .val
+
+I5: 
+E → val.
+
+I6: 
+E → E + E.
+
+I7: 
+E → E ∗ E.
+
+I8: 
+E → ( E. )
+
+I9: 
+E → ( E ) .
+```
+
+This is a simplified example and the actual process can be quite complex for larger grammars. The canonical collection of LR(0) items forms the basis for the states in the SLR parsing table.
+
+HotPantz: can you do step 4 and step 5 and implement this into the code 
+
+GitHub Copilot: Step 4 involves constructing the parsing table. For each state in the canonical collection and each grammar symbol, we determine if a shift or reduce operation should be performed and to which state the parser should transition. 
+
+Step 5 involves handling conflicts. If any state in the parsing table has both a shift and a reduce operation for the same input symbol, the grammar is not SLR and you'll need to modify the grammar or use a more powerful parser.
+
+Given the canonical collection of LR(0) items we derived earlier, we can construct the parsing table. However, the actual construction of the parsing table depends on the specific 'd' and 'r' rules you have, which you haven't provided. 
+
+Here's a general idea of how you might modify your code to construct the parsing table:
+
+```c
+// Initialize the parsing table to -1
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        parsingTable[i][j] = -1;
+    }
+}
+
+// Fill in the parsing table based on your 'd' and 'r' rules
+// This is just a placeholder. You'll need to replace this with your actual rules.
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (/* condition for 'd' rule */) {
+            parsingTable[i][j] = /* shift operation */;
+        } else if (/* condition for 'r' rule */) {
+            parsingTable[i][j] = /* reduce operation */;
+        }
+    }
+}
+
+// Check for conflicts
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (/* condition for conflict */) {
+            printf("Conflict at state %d, symbol %d\n", i, j);
+            // Handle the conflict, e.g., by exiting the program
+            exit(1);
+        }
+    }
+}
+
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        printf("%2d ", parsingTable[i][j]);
+    }
+    printf("\n");
+}
+```
+
+This is a very general example and you'll need to replace the placeholders with your actual 'd' and 'r' rules and conflict handling logic.
+
+HotPantz: give me the full code modified
+
+GitHub Copilot: Based on the excerpt you provided, it seems like you're manually filling in the parsing table. Here's how you might modify your code to fill in the parsing table and check for conflicts:
+
+```c
+// Initialize the parsing table to -1
+int NUM_STATES = 10;
+int NUM_SYMBOLS = 8;
+int parsingTable[NUM_STATES][NUM_SYMBOLS];
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        parsingTable[i][j] = -1;
+    }
+}
+
+// Fill in the parsing table
+parsingTable[2][3] = 7;
+parsingTable[2][4] = 2;
+parsingTable[2][6] = 3;
+parsingTable[3][0] = 4;
+parsingTable[3][1] = 4;
+parsingTable[3][3] = 4;
+parsingTable[3][5] = 4;
+parsingTable[3][7] = 4;
+parsingTable[4][0] = 5;
+parsingTable[4][1] = 5;
+parsingTable[4][3] = 5;
+parsingTable[4][5] = 5;
+parsingTable[4][7] = 5;
+parsingTable[6][1] = 4;
+parsingTable[6][3] = 5;
+parsingTable[6][5] = 9;
+parsingTable[7][0] = 1;
+parsingTable[7][3] = 5;
+parsingTable[7][5] = 1;
+parsingTable[7][7] = 1;
+parsingTable[8][1] = 2;
+parsingTable[8][3] = 2;
+parsingTable[8][5] = 2;
+parsingTable[9][1] = 3;
+parsingTable[9][3] = 3;
+parsingTable[9][5] = 3;
+
+// Check for conflicts
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (parsingTable[i][j] != -1 && parsingTable[i][j] != 1 && parsingTable[i][j] != 2) {
+            printf("Conflict at state %d, symbol %d\n", i, j);
+            // Handle the conflict, e.g., by exiting the program
+            exit(1);
+        }
+    }
+}
+
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        printf("%2d ", parsingTable[i][j]);
+    }
+    printf("\n");
+}
+```
+
+This code initializes the parsing table to -1, fills in the parsing table based on the values you provided, checks for conflicts, and then prints the parsing table. The conflict check is very basic and assumes that only shift (1) and reduce (2) operations are valid. You'll need to adjust this based on your actual 'd' and 'r' rules.
+
+HotPantz: can you represent the d and r and accepted in the print of the table
+
+GitHub Copilot: Sure, you can modify the printing section of your code to represent 'd' (shift), 'r' (reduce), and 'a' (accepted) operations. Here's how you might do it:
+
+```c
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (parsingTable[i][j] == -1) {
+            printf("   ");
+        } else if (parsingTable[i][j] == 1) {
+            printf(" d ");
+        } else if (parsingTable[i][j] == 2) {
+            printf(" r ");
+        } else if (parsingTable[i][j] == 3) {
+            printf(" a ");
+        } else {
+            printf("%2d ", parsingTable[i][j]);
+        }
+    }
+    printf("\n");
+}
+```
+
+This code will print 'd' for shift operations, 'r' for reduce operations, 'a' for accepted states, and a blank space for empty entries in the table. You'll need to adjust the conditions based on your actual 'd', 'r', and 'a' rules.
+
+HotPantz: Conflict at state 2, symbol 3 i got this error
+
+GitHub Copilot: The error message "Conflict at state 2, symbol 3" is being generated by the conflict checking code in your program. This message is indicating that there's a conflict in your parsing table at state 2, symbol 3.
+
+A conflict in a parsing table means that for a given state and input symbol, the parser has more than one possible action it can take. This is a problem because the parser needs to be able to determine a single action to take for each state and input symbol.
+
+In your case, the conflict checking code is triggering an error if the value in the parsing table is not -1 (indicating an empty entry), 1 (indicating a shift operation), or 2 (indicating a reduce operation). The value at state 2, symbol 3 in your parsing table is 7, which is why you're seeing this error.
+
+To resolve this error, you'll need to check your 'd' and 'r' rules and the way you're filling in the parsing table to make sure that each state and input symbol has a single valid action. If your grammar is such that multiple actions are possible for some state and input symbol combinations, you may need to use a more powerful parsing algorithm that can handle these conflicts, such as LALR or LR(1) parsing.
+
+HotPantz: + ∗ ( ) val ⊣ E
+0 x x d2 x d3 x  1
+1 d4 d5 x x x acc x
+2 x x d2 x  d3 x 6
+3 r4 r4 x  r4 x r4 x
+4 x x d2 x  d3 x  7
+5 x x d2 x  d3 x  8
+6 d4 d5 x  d9 x x x
+7 r1  x d5 x  r1 x  r1 x 
+8 r2 r2 x  r2 x  r2 x 
+9 r3 r3 x r3 x r3 x
+
+x d4 x r4 x x d4 r1 r2 r3, les x correspondent aux endroits ou il n'y a rien.
+
+can you use that for the parsing table 
+
+GitHub Copilot: Sure, based on the table you provided, we can fill the parsing table accordingly. Here's how you might do it:
+
+```c
+// Initialize the parsing table to -1
+int NUM_STATES = 10;
+int NUM_SYMBOLS = 8;
+int parsingTable[NUM_STATES][NUM_SYMBOLS];
+for (int i = 0; i < NUM_STATES; i++) {
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        parsingTable[i][j] = -1;
+    }
+}
+
+// Fill in the parsing table
+parsingTable[0][2] = 1; // d2
+parsingTable[0][5] = 1; // d3
+parsingTable[1][0] = 2; // d4
+parsingTable[1][1] = 2; // d5
+parsingTable[1][5] = 3; // acc
+parsingTable[2][2] = 1; // d2
+parsingTable[2][5] = 1; // d3
+parsingTable[3][0] = 4; // r4
+parsingTable[3][1] = 4; // r4
+parsingTable[3][3] = 4; // r4
+parsingTable[3][5] = 4; // r4
+parsingTable[4][2] = 1; // d2
+parsingTable[4][5] = 1; // d3
+parsingTable[5][2] = 1; // d2
+parsingTable[5][5] = 1; // d3
+parsingTable[6][0] = 2; // d4
+parsingTable[6][1] = 2; // d5
+parsingTable[6][3] = 3; // d9
+parsingTable[7][0] = 4; // r1
+parsingTable[7][2] = 4; // r1
+parsingTable[7][4] = 4; // r1
+parsingTable[8][0] = 4; // r2
+parsingTable[8][1] = 4; // r2
+parsingTable[8][3] = 4; // r2
+parsingTable[8][5] = 4; // r2
+parsingTable[9][0] = 4; // r3
+parsingTable[9][1] = 4; // r3
+parsingTable[9][3] = 4; // r3
+parsingTable[9][5] = 4; // r3
+
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (parsingTable[i][j] == -1) {
+            printf("   ");
+        } else if (parsingTable[i][j] == 1) {
+            printf(" d ");
+        } else if (parsingTable[i][j] == 2) {
+            printf(" r ");
+        } else if (parsingTable[i][j] == 3) {
+            printf(" a ");
+        } else {
+            printf("%2d ", parsingTable[i][j]);
+        }
+    }
+    printf("\n");
+}
+```
+
+This code initializes the parsing table to -1, fills in the parsing table based on the values you provided, and then prints the parsing table. The print function will print 'd' for shift operations, 'r' for reduce operations, 'a' for accepted states, and a blank space for empty entries in the table.
+
+HotPantz: i nedd to have the number of the rule that reduce
+
+GitHub Copilot: If you want to display the rule number that is used for reduction, you can modify the parsing table to store the rule number instead of just a generic 'r' for reduction. 
+
+For example, if you have rule 1: `E → E + E`, rule 2: `E → E * E`, rule 3: `E → (E)`, and rule 4: `E → val`, you can store these rule numbers in the parsing table. 
+
+Then, when printing the table, you can print 'r' followed by the rule number for reduction operations. Here's how you might modify your code:
+
+```c
+// Fill in the parsing table
+// ...
+parsingTable[7][0] = 41; // r1
+parsingTable[7][2] = 41; // r1
+parsingTable[7][4] = 41; // r1
+parsingTable[8][0] = 42; // r2
+parsingTable[8][1] = 42; // r2
+parsingTable[8][3] = 42; // r2
+parsingTable[8][5] = 42; // r2
+parsingTable[9][0] = 43; // r3
+parsingTable[9][1] = 43; // r3
+parsingTable[9][3] = 43; // r3
+parsingTable[9][5] = 43; // r3
+// ...
+
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++)
+
+HotPantz: restart
+
+GitHub Copilot: Sure, let's start over. How can I assist you with your programming needs today?
+
+HotPantz: i nedd to have the number of the rule that reduce
+
+GitHub Copilot: To display the number of the rule that reduces, you can modify the printing section of your code to include the rule number along with the 'r' for reduce operations. 
+
+Assuming that the rule number is stored in the parsing table, you can modify the print section as follows:
+
+```c
+// Print the parsing table
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  \n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (parsingTable[i][j] == -1) {
+            printf("   ");
+        } else if (parsingTable[i][j] == 1) {
+            printf(" d ");
+        } else if (parsingTable[i][j] >= 2 && parsingTable[i][j] <= 4) {
+            printf(" r%d ", parsingTable[i][j] - 1); // Subtract 1 because 'r' starts from 2
+        } else if (parsingTable[i][j] == 5) {
+            printf(" a ");
+        } else {
+            printf("%2d ", parsingTable[i][j]);
+        }
+    }
+    printf("\n");
+}
+```
+
+This code will print 'd' for shift operations, 'r' followed by the rule number for reduce operations, 'a' for accepted states, and a blank space for empty entries in the table. 
+
+Please adjust the conditions based on your actual 'd', 'r', and 'a' rules.
+
+HotPantz: I need you to add the follow of E like : 
+
+I0 : 1
+I2 : 6
+I4 : 7
+I5 : 8
+
+GitHub Copilot: To add the follow of E to the parsing table, you can create a separate array to store the follow sets and then print them along with the parsing table. Here's how you might do it:
+
+```c
+// Initialize the follow of E array
+int followOfE[NUM_STATES];
+for (int i = 0; i < NUM_STATES; i++) {
+    followOfE[i] = -1;
+}
+
+// Fill in the follow of E
+followOfE[0] = 1;
+followOfE[2] = 6;
+followOfE[4] = 7;
+followOfE[5] = 8;
+
+// Print the parsing table with follow of E
+printf("SLR Parsing Table:\n");
+printf("I  +  *  (  ) val _  E  Follow(E)\n");
+for (int i = 0; i < NUM_STATES; i++) {
+    printf("%d ", i);
+    for (int j = 0; j < NUM_SYMBOLS; j++) {
+        if (parsingTable[i][j] == -1) {
+            printf("   ");
+        } else if (parsingTable[i][j] == 1) {
+            printf(" d ");
+        } else if (parsingTable[i][j] == 42) {
+            printf(" r2 ");
+        }
+    }
+    if (followOfE[i] != -1) {
+        printf(" %d", followOfE[i]);
+    }
+    printf("\n");
+}
+```
+
+This code initializes the follow of E array to -1, fills in the follow of E based on the values you provided, and then prints the parsing table along with the follow of E. The follow of E is printed in a separate column at the end of each row.
+
+HotPantz: What is the purpose of the follow set in SLR parsing?
+
+GitHub Copilot: In Simple LR (SLR) parsing, the follow set of a non-terminal symbol is used to determine where reductions can occur. 
+
+The follow set of a non-terminal symbol A is the set of all terminals that can appear immediately to the right of A in some sentential form. In other words, it's the set of all terminals that can follow A in a syntactically correct program.
+
+In the context of SLR parsing, the follow set is used to decide when to reduce a production. When the parser encounters a state where a reduction by a certain production is possible, it looks at the next input symbol. If this symbol is in the follow set of the non-terminal on the left-hand side of the production, the parser performs the reduction.
+
+This is why the follow set is important in constructing the SLR parsing table. It helps the parser decide when to shift (i.e., push the next input symbol onto the stack and move to a new state) and when to reduce (i.e., replace the right-hand side of a production on top of the stack with the non-terminal on the left-hand side).
+
+HotPantz: Cette calculatrice doit fonctionner comme un interpréteur, comprenant un analyseur lexical et un ana-
+lyseur syntaxique LR. L’analyse lexicale permet de reconnaître les flottants, tandis que l’analyse syntaxique
+
+doit permettre de reconnaître et d’interpréter les opérations effectuées. Autant je demande que l’analyseur
+syntaxique soit LR, autant je vous laisse libre de la manière d’implémenter l’analyse lexicale (cela peut être
+un automate fini déterministe, mais elle peut aussi être fondue dans l’analyse lexicale).
+
+i need you to give me the steps to achieve this
+
+GitHub Copilot: To create a calculator that works as an interpreter with a lexical analyzer and an LR syntax analyzer, you can follow these steps:
+
+1. **Lexical Analysis**: This is the first phase of a compiler. It takes a sequence of characters (source code) as input and produces a sequence of tokens. A token is a logical entity in the source code. The main task of the lexical analyzer is to identify the tokens, keywords, identifiers, operators, and so on.
+
+    - **Step 1.1**: Read the source code. You can use file handling methods to read the source code.
+    - **Step 1.2**: Scan the source code line by line. You can use string handling functions to do this.
+    - **Step 1.3**: Identify the tokens. You can use regular expressions or if-else conditions to identify the tokens.
+
+2. **Syntax Analysis**: This is the second phase of a compiler. It takes the token produced by lexical analysis as input and generates a parse tree (or syntax tree). In this phase, token arrangements are checked against the source code grammar.
+
+    - **Step 2.1**: Implement an LR parser. You can use a stack-based algorithm for this.
+    - **Step 2.2**: Create a parsing table. The parsing table guides the parser through the process.
+    - **Step 2.3**: Parse the source code. Use the parsing table to guide the parser through the source code.
+    - **Step 2.4**: Handle errors. If the source code does not match the grammar, the parser should be able to handle this and give a meaningful error message.
+
+3. **Semantic Analysis**: This is the third phase of a compiler. It checks the semantic consistency of the source code. It takes the syntax tree and symbol table as input and checks for semantic errors.
+
+    - **Step 3.1**: Traverse the syntax tree and check the semantics of the source code.
+    - **Step 3.2**: Handle errors. If there are any semantic errors, the semantic analyzer should be able to handle this and give a meaningful error message.
+
+4. **Code Generation**: This is the final phase of a compiler. It takes the optimized representation of the source code and maps it to the target machine language.
+
+    - **Step 4.1**: Traverse the syntax tree and generate the machine code.
+    - **Step 4.2**: Optimize the machine code. This step is optional but can lead to more efficient execution.
+
+Please note that this is a high-level overview. Each of these steps can be quite complex and may require a deep understanding of compilers and programming languages.
+
+HotPantz: How can I implement the lexical analysis phase for my calculator interpreter?
+
+GitHub Copilot: The lexical analysis phase involves scanning the input and converting it into a sequence of tokens. Here's a simple way to implement a lexical analyzer for a calculator interpreter:
+
+1. **Define the tokens**: These are the valid symbols that your calculator can recognize. For a simple calculator, these might include:
+
+   - Numbers (integers, floats)
+   - Arithmetic operators (+, -, *, /)
+   - Parentheses ((), [])
+
+2. **Create a function to tokenize the input**: This function will take a string as input and return a list of tokens. Here's a simple implementation in C:
+
+```c
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum {
+    TOKEN_NUMBER,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MULTIPLY,
+    TOKEN_DIVIDE,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_EOF
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    double value;
+} Token;
+
+Token* tokenize(char* input) {
+    size_t inputLength = strlen(input);
+    Token* tokens = malloc(sizeof(Token) * (inputLength + 1)); // +1 for TOKEN_EOF
+    size_t tokenCount = 0;
+
+    for (size_t i = 0; i < inputLength; ++i) {
+        if (isspace(input[i])) {
+            continue;
+        } else if (isdigit(input[i])) {
+            tokens[tokenCount].type = TOKEN_NUMBER;
+            tokens[tokenCount].value = strtod(&input[i], &input[i]);
+            --i; // strtod advances the pointer, so decrement i to compensate
+        } else {
+            switch (input[i]) {
+                case '+': tokens[tokenCount].type = TOKEN_PLUS; break;
+                case '-': tokens[tokenCount].type = TOKEN_MINUS; break;
+                case '*': tokens[tokenCount].type = TOKEN_MULTIPLY; break;
+                case '/': tokens[tokenCount].type = TOKEN_DIVIDE; break;
+                case '(': tokens[tokenCount].type = TOKEN_LPAREN; break;
+                case ')': tokens[tokenCount].type = TOKEN_RPAREN; break;
+                default: /* handle error */ break;
+            }
+            tokens[tokenCount].value = 0;
+        }
+        ++tokenCount;
+    }
+
+    tokens[tokenCount].type = TOKEN_EOF;
+    tokens[tokenCount].value = 0;
+
+    return tokens;
+}
+```
+
+This function scans the input string character by character. If it encounters a space, it skips it. If it encounters a digit, it uses `strtod` to convert the subsequent digits into a number. If it encounters an operator or parentheses, it creates a corresponding token. At the end of the input, it adds a `TOKEN_EOF` token.
+
+Remember to free the memory allocated for the tokens when you're done with them.
+
+3. **Test your tokenizer**: You can now test your tokenizer with some input:
+
+```c
+int main() {
+    char* input = "12.34 + 56.78 * (90.12 - 34.56)";
+    Token* tokens = tokenize(input);
+
+    for (size_t i = 0; tokens[i].type != TOKEN_EOF; ++i) {
+        printf("Token: %d, Value: %f\n", tokens[i].type, tokens[i].value);
+    }
+
+    free(tokens);
+
+    return 0;
+}
+```
+
+This will print out the tokens and their values for the given input.
