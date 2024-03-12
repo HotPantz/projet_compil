@@ -7,11 +7,11 @@
 #define NUM_STATES 10
 #define NUM_SYMBOLS 8
 
-#define D2 12
-#define D3 13
-#define D4 14
-#define D5 15
-#define D9 19
+#define D2 2
+#define D3 3
+#define D4 4
+#define D5 5
+#define D9 9
 
 #define R1 21
 #define R2 22

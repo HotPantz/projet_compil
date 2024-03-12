@@ -17,33 +17,34 @@ int main() {
     // Fill in the parsing table
     parsingTable[0][2] = D2; // d2
     parsingTable[0][5] = D3; // d3
-    parsingTable[1][0] = D4; // d4
-    parsingTable[1][1] = D5; // d5
-    parsingTable[1][5] = ACC; // acc
-    parsingTable[2][2] = D2; // d2
+    parsingTable[1][1] = D4; // d4
+    parsingTable[1][2] = D5; // d5
+    parsingTable[1][6] = ACC; // acc
+    parsingTable[2][3] = D2; // d2
     parsingTable[2][5] = D3; // d3
-    parsingTable[3][0] = R4; // r4
     parsingTable[3][1] = R4; // r4
-    parsingTable[3][3] = R4; // r4
-    parsingTable[3][5] = R4; // r4
-    parsingTable[4][2] = D2; // d2
+    parsingTable[3][2] = R4; // r4
+    parsingTable[3][4] = R4; // r4
+    parsingTable[3][6] = R4; // r4
+    parsingTable[4][3] = D2; // d2
     parsingTable[4][5] = D3; // d3
-    parsingTable[5][2] = D2; // d2
+    parsingTable[5][3] = D2; // d2
     parsingTable[5][5] = D3; // d3
-    parsingTable[6][0] = D4; // d4
-    parsingTable[6][1] = D5; // d5
-    parsingTable[6][3] = D9; // d9
-    parsingTable[7][0] = R1; // r1
-    parsingTable[7][2] = R1; // r1
+    parsingTable[6][1] = D4; // d4
+    parsingTable[6][2] = D5; // d5
+    parsingTable[6][4] = D9; // d9
+    parsingTable[7][1] = R1; // r1
+    parsingTable[7][2] = D5; // r5
     parsingTable[7][4] = R1; // r1
-    parsingTable[8][0] = R2; // r2
+    parsingTable[7][6] = R1; // r1
     parsingTable[8][1] = R2; // r2
-    parsingTable[8][3] = R2; // r2
-    parsingTable[8][5] = R2; // r2
-    parsingTable[9][0] = R3; // r3
+    parsingTable[8][2] = R2; // r2
+    parsingTable[8][4] = R2; // r2
+    parsingTable[8][6] = R2; // r2
     parsingTable[9][1] = R3; // r3
-    parsingTable[9][3] = R3; // r3
-    parsingTable[9][5] = R3; // r3
+    parsingTable[9][2] = R3; // r3
+    parsingTable[9][4] = R3; // r3
+    parsingTable[9][6] = R3; // r3
 
     // Initialize the goto table
     int gotoTable[NUM_STATES];

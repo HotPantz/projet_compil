@@ -41,6 +41,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
     while (1) {
         int state = stack->data[stack->top];
         printf("top: %d\n", stack->top);
+
+        
         
         Token token = tokens[i];
         token.type++;
@@ -52,6 +54,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             printf("%d ", stack->data[j]);
         }
         printf("\n");
+
         // lookup the action in the parsing table based on the current state and token
         int action = parsingTable[state][token.type];
 
