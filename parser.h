@@ -7,6 +7,19 @@
 #define NUM_STATES 10
 #define NUM_SYMBOLS 8
 
+#define D2 12
+#define D3 13
+#define D4 14
+#define D5 15
+#define D9 19
+
+#define R1 21
+#define R2 22
+#define R3 23
+#define R4 24
+
+#define ACC 30
+
 typedef struct {
     int* data;
     int top;

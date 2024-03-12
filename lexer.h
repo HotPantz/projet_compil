@@ -4,11 +4,11 @@
 #include <stdbool.h>
 
 typedef enum {
-    TOKEN_NUMBER,
     TOKEN_PLUS,
     TOKEN_MULTIPLY,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
+    TOKEN_NUMBER,
     TOKEN_EOF
 } TokenType;
 
