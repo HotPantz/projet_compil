@@ -1,4 +1,4 @@
-//Selyan Kablia et Nathan Lestrade
+#Selyan Kablia et Nathan Lestrade
 
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
