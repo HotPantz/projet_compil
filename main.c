@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "lexer.h"
 #include "parser.h"
-#include "calculator.h"
+#include "evaluator.h"
 
 
 
