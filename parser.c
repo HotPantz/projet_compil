@@ -40,66 +40,50 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
     int i = 0;
     while (1) {
         int state = stack->data[stack->top];
-        printf("top: %d\n", stack->top);
 
         
         
         Token token = tokens[i];
         token.type++;
-        printf("Current token: %d\n", token.type);
-        printf("Current token value: %f\n", token.value);
-        printf("Current state: %d\n", state);
-        printf("Stack: ");
-        for (int j = 0; j <= stack->top; ++j) {
-            printf("%d ", stack->data[j]);
-        }
-        printf("\n");
 
         // lookup the action in the parsing table based on the current state and token
         int action = parsingTable[state][token.type];
 
-        printf("Action: %d\n", action);
 
         switch (action) {
             case D2:
                 // shift
-                printf("Shifting...\n");
                 push(stack, action);
                 ++i;
                 break;
             case D3:
                 // shift
-                printf("Shifting...\n");
                 push(stack, action);
                 ++i;
                 break;
             case D4:
                 // shift
-                printf("Shifting...\n");
                 push(stack, action);
                 ++i;
                 break;
             case D5:
                 // shift
-                printf("Shifting...\n");
                 push(stack, action);
                 ++i;
                 break;
             case D9:
                 // shift
-                printf("Shifting...\n");
                 push(stack, action);
                 ++i;
                 break;
             case ACC:
                 // accept
-                printf("Accepted!\n");
+
                 free(stack->data);
                 free(stack);
                 return 0;
             case R1: {
                 // reduce
-                printf("Reducing...\n");
                 GrammarRule rule = grammar[0]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
@@ -119,7 +103,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             }
             case R2: {
                 // reduce
-                printf("Reducing...\n");
                 GrammarRule rule = grammar[1]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
@@ -139,7 +122,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             }
             case R3: {
                 // reduce
-                printf("Reducing...\n");
                 GrammarRule rule = grammar[2]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
@@ -159,7 +141,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             }
             case R4: {
                 // reduce
-                printf("Reducing...\n");
                 GrammarRule rule = grammar[3]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
