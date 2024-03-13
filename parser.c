@@ -45,14 +45,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
     while (1) {
         int state = stack->data[stack->top];
 
-        
-        
         Token token = tokens[i];
         token.type++;
 
         // lookup the action in the parsing table based on the current state and token
         int action = parsingTable[state][token.type];
 
+        printf("Current state: %d\n", state);
+        printf("Current token type: %d\n", token.type);
+        printf("Action: %d\n", action);
 
         switch (action) {
             case D4:
@@ -100,8 +101,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][E]);
+                push(stack, newState);
                 break;
             }
             case R2: {
@@ -119,8 +120,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][E]);
+                push(stack, newState);
                 break;
             }
             case R3: {
@@ -138,8 +139,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][T]);
+                push(stack, newState);
                 break;
             }
             case R4: {
@@ -157,13 +158,13 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][T]);
+                push(stack, newState);
                 break;
             }
             case R5: {
                 // reduce
-                GrammarRule rule = grammar[0]; // use the grammar here
+                GrammarRule rule = grammar[4]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
                 }
@@ -176,13 +177,13 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][F]);
+                push(stack, newState);
                 break;
             }
             case R6: {
                 // reduce
-                GrammarRule rule = grammar[0]; // use the grammar here
+                GrammarRule rule = grammar[5]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
                 }
@@ -195,8 +196,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]];
-                push(stack, newState); // use followOfE here
+                int newState = *(gotoTable[stack->data[stack->top]][F]);
+                push(stack, newState);
                 break;
             }
             default:
