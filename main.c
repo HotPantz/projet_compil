@@ -98,13 +98,10 @@ int main() {
                 case TOKEN_PLUS:
                     break;
                 case TOKEN_MULTIPLY:
-                    printf("* ");
                     break;
                 case TOKEN_LPAREN:
-                    printf("( ");
                     break;
                 case TOKEN_RPAREN:
-                    printf(") ");
                     break;
                 default:
                     printf("Unknown token ");
