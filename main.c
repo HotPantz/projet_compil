@@ -56,27 +56,27 @@ int main() {
     parsingTable[11][6] = R5; // r5
 
     // Initialize the goto table
-    int gotoTable[NUM_STATES][3];
+    int* gotoTable[NUM_STATES][3];
     for (int i = 0; i < NUM_STATES; i++) {
         for (int j = 0; j < 3; j++) {
-            gotoTable[i][j] = -1;
+            *(gotoTable[i][j]) = -1;
         }
     }
 
     // Fill in the goto table for E
-    gotoTable[0][E] = 1;
-    gotoTable[4][E] = 8;
+    *(gotoTable[0][E]) = 1;
+    *(gotoTable[4][E]) = 8;
 
     // Fill in the goto table for T
-    gotoTable[0][T] = 2;
-    gotoTable[4][T] = 2;
-    gotoTable[6][T] = 9;
+    *(gotoTable[0][T]) = 2;
+    *(gotoTable[4][T]) = 2;
+    *(gotoTable[6][T]) = 9;
 
     // Fill in the goto table for F
-    gotoTable[0][F] = 3;
-    gotoTable[4][F] = 3;
-    gotoTable[6][F] = 3;
-    gotoTable[7][F] = 10;
+    *(gotoTable[0][F]) = 3;
+    *(gotoTable[4][F]) = 3;
+    *(gotoTable[6][F]) = 3;
+    *(gotoTable[7][F]) = 10;
 
 
 
