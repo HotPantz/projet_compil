@@ -29,6 +29,71 @@ int pop(Stack* stack) {
     return stack->data[stack->top--];
 }
 
+int evaluate(Stack* input) {
+    Stack* evalStack = createStack(100);
+    int element;
+    while (input->top >= 0) {
+        element = pop(input);
+        printf("element = %d\n", element);
+
+        if (element >= 0) {
+            // Operand
+            push(evalStack, element);
+            printf("test\n");
+        } else {
+            // Operator
+            switch (element) {
+                case -1:
+                    // Addition
+                    printf("taille actuelle STACK : %d\n", evalStack->top);
+                    if (evalStack->top < 1) {
+                        printf("Syntax error: insufficient operands for addition\n");
+                        free(evalStack->data);
+                        free(evalStack);
+                        return -1;
+                    }
+                    int operand2 = pop(evalStack);
+                    int operand1 = pop(evalStack);
+                    push(evalStack, operand1 + operand2);
+                    break;
+                case -2:
+                    // Multiplication
+                    if (evalStack->top < 1) {
+                        printf("Syntax error: insufficient operands for multiplication\n");
+                        free(evalStack->data);
+                        free(evalStack);
+                        return -1;
+                    }
+                    operand2 = pop(evalStack);
+                    operand1 = pop(evalStack);
+                    push(evalStack, operand1 * operand2);
+                    break;
+                case -3:
+                    // Opening parenthesis
+                    printf("Syntax error: unexpected opening parenthesis\n");
+                    free(evalStack->data);
+                    free(evalStack);
+                    return -1;
+                case -4:
+                    // Closing parenthesis
+                    printf("Syntax error: unexpected closing parenthesis\n");
+                    free(evalStack->data);
+                    free(evalStack);
+                    return -1;
+                default:
+                    printf("Syntax error: unknown operator\n");
+                    free(evalStack->data);
+                    free(evalStack);
+                    return -1;
+            }
+        }
+    }
+    int result = pop(evalStack);
+    free(evalStack->data);
+    free(evalStack);
+    return result;
+}
+
 int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES][3])
  {
     GrammarRule grammar[] = {
@@ -44,14 +109,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
     
     // push the initial state
     push(stack, 0);
-
-
-    /*for (int i = 0; i < NUM_STATES; i++) {
-        for (int j = 0; j < NUM_SYMBOLS; j++) {
-            printf("parsingTable[%d][%d] = %d\n", i, j, parsingTable[i][j]);
-        }
-    }*/
-
 
     int i = 0;
     while (1) {
@@ -71,7 +128,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
         // lookup the action in the parsing table based on the current state and token
         //printf("token type pour action = %d\n", (-1) * token.type);
         int action = parsingTable[state][(-1) * token.type];
-        printf("test parsingtable : %d\n", parsingTable[11][6]);
 
         printf("Action: %d\n", action);
 
@@ -103,17 +159,18 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
-                // print the contents of the stack
-                printf("Stack contents: ");
+                printf("Accepted\n");
+                /*printf("Stack contents: ");
                 for (int j = 0; j <= stack->top; ++j) {
                     printf("%d ", stack->data[j]);
                 }
-                printf("\n");
+                printf("\n");*/
                 printf("input contents: ");
                 for (int j = 0; j <= input->top; ++j) {
                     printf("%d ", input->data[j]);
                 }
-                printf("\n");
+                printf("\n\n\n");
+                evaluate(input);
                 free(stack->data);
                 free(stack);
                 free(input->data);
@@ -122,7 +179,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             case R1: {
                 // reduce
                 GrammarRule rule = grammar[0]; // use the grammar here
-                for (int j = 0; j < 2*rule.length+1; ++j) {       //on fait 2*rule.length car on a besoin de pop 2 fois plus de tokens que la longueur de la règle puisque qu'il y a les tokens et les états
+                for (int j = 0; j < 2*rule.length+1; ++j) {       // we iterate 2*rule.length times because we need to pop twice as many tokens as the length of the rule, since there are both tokens and states
                    if (j == 4) {
                         printf("valeur mise dans le INPUT : %d\n", stack->data[stack->top]);
                         push(input, stack->data[stack->top]);
@@ -167,7 +224,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 // reduce
                 GrammarRule rule = grammar[2]; // use the grammar here
                 for (int j = 0; j < 2*rule.length+1; ++j) {
-                   if (stack->data[stack->top] == TOKEN_MULTIPLY) {
+                   if (j == 4) {
                         push(input, stack->data[stack->top]);
                     }                    
                     pop(stack);
@@ -236,7 +293,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 // reduce
                 GrammarRule rule = grammar[5]; // use the grammar here
                 for (int j = 0; j < 2*rule.length+1; ++j) {
-                    printf("1 tour de boucle R6\n");
                     if (j == 2) {
                         printf("val mise dans INPUT : %d\n", stack->data[stack->top]);
                         push(input, stack->data[stack->top]);
