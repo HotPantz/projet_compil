@@ -37,7 +37,7 @@ typedef struct {
 Stack* createStack(int size); // Create a stack of given size
 void push(Stack* stack, int value); // Push a value onto the stack
 int pop(Stack* stack) ; // Pop a value from the stack
-int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTable[NUM_STATES][3]) ; // Parse the input tokens using the given parsing table and follow set
+int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES][3]);
 
 typedef enum {
     PROD_E_PLUS_T,          // E -> E + T

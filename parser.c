@@ -29,7 +29,8 @@ int pop(Stack* stack) {
     return stack->data[stack->top--];
 }
 
-int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTable[NUM_STATES][3]) {
+int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES][3])
+ {
     GrammarRule grammar[] = {
         { PROD_E_PLUS_T, 3},           // E -> E + T
         { PROD_E_T, 1 },               // E -> T
@@ -101,7 +102,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][E]);
+                int newState = gotoTable[stack->data[stack->top]][E];
                 push(stack, newState);
                 break;
             }
@@ -120,7 +121,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][E]);
+                int newState = gotoTable[stack->data[stack->top]][E];
                 push(stack, newState);
                 break;
             }
@@ -139,7 +140,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][T]);
+                int newState = gotoTable[stack->data[stack->top]][T];
                 push(stack, newState);
                 break;
             }
@@ -158,7 +159,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][T]);
+                int newState = gotoTable[stack->data[stack->top]][T];
                 push(stack, newState);
                 break;
             }
@@ -177,7 +178,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][F]);
+                int newState = gotoTable[stack->data[stack->top]][F];
                 push(stack, newState);
                 break;
             }
@@ -196,7 +197,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTab
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = *(gotoTable[stack->data[stack->top]][F]);
+                int newState = gotoTable[stack->data[stack->top]][F];
                 push(stack, newState);
                 break;
             }
