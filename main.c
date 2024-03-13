@@ -82,20 +82,18 @@ int main() {
     char input[100];
     
     while (true) {
-        printf("Enter an expression (q to quit):\n");
+        printf("> ");
         fgets(input, sizeof(input), stdin);
         
         if (input[0] == 'q') {
             break;
         }
-        
         // Read the input
         Token* tokens = tokenize(input);
 
         for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
             switch (tokens[i].type) {
                 case TOKEN_NUMBER:
-                    printf("%f ", tokens[i].value);
                     break;
                 case TOKEN_PLUS:
                     printf("+ ");
@@ -113,7 +111,6 @@ int main() {
                     printf("Unknown token ");
             }
         }
-        printf("\n");
 
         // Call the parse function
         parse(tokens, parsingTable, gotoTable);

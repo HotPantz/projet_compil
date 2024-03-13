@@ -146,9 +146,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
-                printf("Expression accepted!\n\n");
-                printf("\n\n");
-                printf("RESULT = %d\n", evaluate(input));
+                printf("%d\n", evaluate(input));
                 free(stack->data);
                 free(stack);
                 free(input->data);
