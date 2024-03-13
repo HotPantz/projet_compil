@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "lexer.h"
 #include "parser.h"
-#include "evaluator.h"
 
 
 
@@ -114,15 +113,7 @@ int main() {
 
         // Call the parse function
         parse(tokens, parsingTable, gotoTable);
-
-        // Evaluate the parsed expression
-        //double result = evaluateExpression(tokens);
-
-        // Print the result
-        //printf("Result: %.2f\n", result);
-    
     }
-
     return 0;
 
 }
