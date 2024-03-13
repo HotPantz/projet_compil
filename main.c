@@ -87,6 +87,7 @@ int main() {
         if (input[0] == 'q') {
             break;
         }
+        
         // Read the input
         Token* tokens = tokenize(input);
 
@@ -95,7 +96,6 @@ int main() {
                 case TOKEN_NUMBER:
                     break;
                 case TOKEN_PLUS:
-                    printf("+ ");
                     break;
                 case TOKEN_MULTIPLY:
                     printf("* ");
@@ -113,7 +113,15 @@ int main() {
 
         // Call the parse function
         parse(tokens, parsingTable, gotoTable);
+
+        // Evaluate the parsed expression
+        //double result = evaluateExpression(tokens);
+
+        // Print the result
+        //printf("Result: %.2f\n", result);
+    
     }
+
     return 0;
 
 }
