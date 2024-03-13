@@ -13,50 +13,59 @@
 double evaluateExpression(Token* tokens) {
     Stack* stack = createStack(100);
     double lastNumber = 0.0;
-    bool hasLastNumber = false;
+    bool hasLastNumber = false, second_iteration = false;
+    TokenType last_token_type = 6;  //on initialise à une valeur qui ne correspond à aucun type de token
+
 
     for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
         switch (tokens[i].type) {
             case TOKEN_NUMBER:
                 lastNumber = tokens[i].value;
-                printf("lastnumb %f ", lastNumber);
                 hasLastNumber = true;
                 break;
             case TOKEN_PLUS:
                 if (hasLastNumber) {
-                    push(stack, lastNumber);
+                    push(stack, lastNumber);  //si on tombe sur une opération, on push sur la stack la première opérande (aka la token.value du token précédent) 
                     hasLastNumber = false;
                 }
-                // Pas besoin de faire quoi que ce soit pour l'addition, elle sera effectuée au prochain tour de boucle
+                last_token_type = tokens[i].type;  //on enregistre le type du token de l'opération pour pouvoir l'effectuer au prochain tour de boucle
                 break;
             case TOKEN_MULTIPLY:
                 if (hasLastNumber) {
                     push(stack, lastNumber);
                     hasLastNumber = false;
                 }
-                // Pas besoin de faire quoi que ce soit pour la multiplication, elle sera effectuée au prochain tour de boucle
+                last_token_type = tokens[i].type;
                 break;
             default:
                 // Ignorer les autres types de token
                 break;
         }
 
-        // Si on a rencontré un opérateur, et qu'il y a déjà un dernier nombre dans la pile, effectuer l'opération
-        if (!hasLastNumber && (tokens[i].type == TOKEN_PLUS || tokens[i].type == TOKEN_MULTIPLY)) {
-            double operand1 = pop(stack);
-            double operand2 = pop(stack);
 
-            printf("op1 %f op2 %f ", operand1, operand2);
-            printf("lastNumber: %f\n", lastNumber);
-            switch (tokens[i].type) {
-                case TOKEN_PLUS:
-                    push(stack, operand1 + operand2);
-                    break;
-                case TOKEN_MULTIPLY:
-                    push(stack, operand1 * operand2);
-                    break;
-                default:
-                    break;
+        //printf("au tour de boucle %d, hasLastNumber = %d | second_iteration = %d | last_token_type = %u\n", i, hasLastNumber, second_iteration, last_token_type);
+        // Si on a rencontré un opérateur on passe le bool second_iteration à true pour pouvoir effectuer l'opération au prochain tour de boucle lorsqu'on aura push la deuxième opérande sur la stack
+        if ((!hasLastNumber || second_iteration) && (tokens[i].type == TOKEN_PLUS || tokens[i].type == TOKEN_MULTIPLY || last_token_type == 0 || last_token_type == 1)) {
+            if (!second_iteration) {
+                second_iteration = true;
+            }
+            else {
+                if (hasLastNumber) {
+                    push(stack, lastNumber);  //si l'avant-dernier token est un opérateur, on push la dernière opérande sur la stack
+                    hasLastNumber = false;
+                }
+                double operand1 = pop(stack);
+                double operand2 = pop(stack);
+                switch (last_token_type) {
+                    case TOKEN_PLUS:
+                        push(stack, operand1 + operand2);
+                        break;
+                    case TOKEN_MULTIPLY:
+                        push(stack, operand1 * operand2);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

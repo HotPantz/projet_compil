@@ -88,7 +88,7 @@ int main() {
                     printf("* ");
                     break;
                 case TOKEN_LPAREN:
-                    printf("( ");
+                    printf("(");
                     break;
                 case TOKEN_RPAREN:
                     printf(") ");
