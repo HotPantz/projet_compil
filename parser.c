@@ -29,23 +29,28 @@ int pop(Stack* stack) {
     return stack->data[stack->top--];
 }
 
+
+// Function to evaluate the stack input and calculate the final result
 int evaluate(Stack* input) {
+    Stack* tmp = createStack(100);
     Stack* evalStack = createStack(100);
     int element;
-    while (input->top >= 0) {
+    while (input->top >= 0) {       // while loop to reverse the order of tokens in the input stack
         element = pop(input);
-        printf("element = %d\n", element);
+        push(tmp, element);
+    }
+        
+    while (tmp->top >= 0) {
+        element = pop(tmp);
 
         if (element >= 0) {
             // Operand
             push(evalStack, element);
-            printf("test\n");
         } else {
             // Operator
             switch (element) {
                 case -1:
                     // Addition
-                    printf("taille actuelle STACK : %d\n", evalStack->top);
                     if (evalStack->top < 1) {
                         printf("Syntax error: insufficient operands for addition\n");
                         free(evalStack->data);
@@ -68,18 +73,6 @@ int evaluate(Stack* input) {
                     operand1 = pop(evalStack);
                     push(evalStack, operand1 * operand2);
                     break;
-                case -3:
-                    // Opening parenthesis
-                    printf("Syntax error: unexpected opening parenthesis\n");
-                    free(evalStack->data);
-                    free(evalStack);
-                    return -1;
-                case -4:
-                    // Closing parenthesis
-                    printf("Syntax error: unexpected closing parenthesis\n");
-                    free(evalStack->data);
-                    free(evalStack);
-                    return -1;
                 default:
                     printf("Syntax error: unknown operator\n");
                     free(evalStack->data);
@@ -122,14 +115,8 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             push(stack, token.type);
         }
 
-        printf("Current state: %d\n", state);
-        printf("Current token type: %d\n", token.type);
-
         // lookup the action in the parsing table based on the current state and token
-        //printf("token type pour action = %d\n", (-1) * token.type);
         int action = parsingTable[state][(-1) * token.type];
-
-        printf("Action: %d\n", action);
 
         switch (action) {
             case D4:
@@ -159,18 +146,9 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
-                printf("Accepted\n");
-                /*printf("Stack contents: ");
-                for (int j = 0; j <= stack->top; ++j) {
-                    printf("%d ", stack->data[j]);
-                }
-                printf("\n");*/
-                printf("input contents: ");
-                for (int j = 0; j <= input->top; ++j) {
-                    printf("%d ", input->data[j]);
-                }
-                printf("\n\n\n");
-                evaluate(input);
+                printf("Expression accepted!\n\n");
+                printf("\n\n");
+                printf("RESULT = %d\n", evaluate(input));
                 free(stack->data);
                 free(stack);
                 free(input->data);
@@ -181,7 +159,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 GrammarRule rule = grammar[0]; // use the grammar here
                 for (int j = 0; j < 2*rule.length+1; ++j) {       // we iterate 2*rule.length times because we need to pop twice as many tokens as the length of the rule, since there are both tokens and states
                    if (j == 4) {
-                        printf("valeur mise dans le INPUT : %d\n", stack->data[stack->top]);
                         push(input, stack->data[stack->top]);
                     }                    
                     pop(stack);
@@ -267,12 +244,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 // reduce
                 GrammarRule rule = grammar[4]; // use the grammar here
                 for (int j = 0; j < 2*rule.length+1; ++j) {             
-                    if (stack->data[stack->top] == TOKEN_LPAREN) {
-                        push(input, stack->data[stack->top]);
-                    }
-                    if (stack->data[stack->top] == TOKEN_RPAREN) {
-                        push(input, stack->data[stack->top]);
-                    }
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -294,7 +265,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 GrammarRule rule = grammar[5]; // use the grammar here
                 for (int j = 0; j < 2*rule.length+1; ++j) {
                     if (j == 2) {
-                        printf("val mise dans INPUT : %d\n", stack->data[stack->top]);
                         push(input, stack->data[stack->top]);
                     }
                     pop(stack);
@@ -309,7 +279,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 }
                 // push the new state based on the left-hand side of the rule and the current state
                 int newState = gotoTable[stack->data[stack->top]][F-E];
-                printf("state = %d | newState = %d\n", stack->data[stack->top], newState);
 
                 push(stack, F);
                 push(stack, newState);
@@ -323,15 +292,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 free(stack);
                 return -1;
         }
-        printf("Stack contents à l'itération %d: ", i);
-            for (int j = 0; j <= stack->top; ++j) {
-                printf("%d ", stack->data[j]);
-            }
-        printf("\n");
+        /*printf("Stack contents à l'itération %d: ", i);
+        for (int j = 0; j <= stack->top; ++j) {
+            printf("%d ", stack->data[j]);
+        }
+        printf("\n");                                          //thoses two printfs were used to debug the parser, they show the contents of the stack and the input at each iteration of the while loop
         printf("input contents à l'itération %d: ", i);
-            for (int j = 0; j <= input->top; ++j) {
-                printf("%d ", input->data[j]);
-            }
-        printf("\n\n\n");
+        for (int j = 0; j <= input->top; ++j) {
+            printf("%d ", input->data[j]);
+        }
+        printf("\n\n\n");*/
     }
 }
