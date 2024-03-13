@@ -29,12 +29,14 @@ int pop(Stack* stack) {
     return stack->data[stack->top--];
 }
 
-int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTable[NUM_STATES]) {
+int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int* gotoTable[NUM_STATES][3]) {
     GrammarRule grammar[] = {
-        { PROD_E_PLUS_E, 3 },      // E -> E + E
-        { PROD_E_MUL_E, 3 },       // E -> E * E
-        { PROD_LPAREN_E_RPAREN, 3 }, // E -> (E)
-        { PROD_VAL, 1 }            // E -> val
+        { PROD_E_PLUS_T, 3},           // E -> E + T
+        { PROD_E_T, 1 },               // E -> T
+        { PROD_T_MUL_F, 3 },           // T -> T * F
+        { PROD_T_F, 1 },               // T -> F
+        { PROD_F_LPAREN_E_RPAREN, 3 }, // F -> (E)
+        { PROD_F_VAL, 1 }              // F -> val
     };
     Stack* stack = createStack(100);
     push(stack, 0); // push the initial state
@@ -53,16 +55,6 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
 
 
         switch (action) {
-            case D2:
-                // shift
-                push(stack, action);
-                ++i;
-                break;
-            case D3:
-                // shift
-                push(stack, action);
-                ++i;
-                break;
             case D4:
                 // shift
                 push(stack, action);
@@ -73,7 +65,17 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 push(stack, action);
                 ++i;
                 break;
-            case D9:
+            case D6:
+                // shift
+                push(stack, action);
+                ++i;
+                break;
+            case D7:
+                // shift
+                push(stack, action);
+                ++i;
+                break;
+            case D11:
                 // shift
                 push(stack, action);
                 ++i;
@@ -143,6 +145,44 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
             case R4: {
                 // reduce
                 GrammarRule rule = grammar[3]; // use the grammar here
+                for (int j = 0; j < rule.length; ++j) {
+                    pop(stack);
+                }
+                // check if the stack is empty
+                if (stack->top == -1) {
+                    // stack is empty, return error
+                    printf("Syntax error: unexpected end of input\n");
+                    free(stack->data);
+                    free(stack);
+                    return -1;
+                }
+                // push the new state based on the left-hand side of the rule and the current state
+                int newState = gotoTable[stack->data[stack->top]];
+                push(stack, newState); // use followOfE here
+                break;
+            }
+            case R5: {
+                // reduce
+                GrammarRule rule = grammar[0]; // use the grammar here
+                for (int j = 0; j < rule.length; ++j) {
+                    pop(stack);
+                }
+                // check if the stack is empty
+                if (stack->top == -1) {
+                    // stack is empty, return error
+                    printf("Syntax error: unexpected end of input\n");
+                    free(stack->data);
+                    free(stack);
+                    return -1;
+                }
+                // push the new state based on the left-hand side of the rule and the current state
+                int newState = gotoTable[stack->data[stack->top]];
+                push(stack, newState); // use followOfE here
+                break;
+            }
+            case R6: {
+                // reduce
+                GrammarRule rule = grammar[0]; // use the grammar here
                 for (int j = 0; j < rule.length; ++j) {
                     pop(stack);
                 }
