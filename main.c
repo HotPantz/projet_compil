@@ -55,8 +55,6 @@ int main() {
     parsingTable[11][4] = R5; // r5
     parsingTable[11][6] = R5; // r5
 
-    printf("debug\n");
-
     // Initialize the goto table
     int gotoTable[NUM_STATES][3];
     
@@ -65,8 +63,6 @@ int main() {
             gotoTable[i][j] = -1;
         }
     }
-
-    printf("dddd\n");
 
     // Fill in the goto table for E
     gotoTable[0][E-E] = 1;  //on fait E-E car on a initialisé E à 13, T à 14 et F à 15 pour pouvoir les différencier des valeurs des états dans la stack du parser
@@ -82,8 +78,6 @@ int main() {
     gotoTable[4][F-E] = 3;
     gotoTable[6][F-E] = 3;
     gotoTable[7][F-E] = 10;
-
-    printf("debug222\n");
 
     char input[100];
     

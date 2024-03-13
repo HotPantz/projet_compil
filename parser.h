@@ -7,7 +7,7 @@
 #include "lexer.h"
 
 #define NUM_STATES 12
-#define NUM_SYMBOLS 6
+#define NUM_SYMBOLS 7
 
 #define E 13  //on initialise ces macros à 13, 14 et 15 pour pouvoir les différencier des valeurs des états dans la stack du parser
 #define T 14
