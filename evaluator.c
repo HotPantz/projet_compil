@@ -14,7 +14,7 @@ double evaluateExpression(Token* tokens) {
     Stack* stack = createStack(100);
     double lastNumber = tokens->value;
     bool hasLastNumber = false, second_iteration = false;
-    TokenType last_token_type = 6;  //on initialise à une valeur qui ne correspond à aucun type de token
+    int last_token_type = 6;  //on initialise à une valeur qui ne correspond à aucun type de token
 
 
     for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {

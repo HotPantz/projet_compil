@@ -69,19 +69,19 @@ int main() {
     printf("dddd\n");
 
     // Fill in the goto table for E
-    gotoTable[0][E] = 1;
-    gotoTable[4][E] = 8;
+    gotoTable[0][E-E] = 1;  //on fait E-E car on a initialisé E à 13, T à 14 et F à 15 pour pouvoir les différencier des valeurs des états dans la stack du parser
+    gotoTable[4][E-E] = 8;
 
     // Fill in the goto table for T
-    gotoTable[0][T] = 2;
-    gotoTable[4][T] = 2;
-    gotoTable[6][T] = 9;
+    gotoTable[0][T-E] = 2;
+    gotoTable[4][T-E] = 2;
+    gotoTable[6][T-E] = 9;
 
     // Fill in the goto table for F
-    gotoTable[0][F] = 3;
-    gotoTable[4][F] = 3;
-    gotoTable[6][F] = 3;
-    gotoTable[7][F] = 10;
+    gotoTable[0][F-E] = 3;
+    gotoTable[4][F-E] = 3;
+    gotoTable[6][F-E] = 3;
+    gotoTable[7][F-E] = 10;
 
     printf("debug222\n");
 
@@ -125,10 +125,10 @@ int main() {
         parse(tokens, parsingTable, gotoTable);
 
         // Evaluate the parsed expression
-        double result = evaluateExpression(tokens);
+        //double result = evaluateExpression(tokens);
 
         // Print the result
-        printf("Result: %.2f\n", result);
+        //printf("Result: %.2f\n", result);
     
     }
 

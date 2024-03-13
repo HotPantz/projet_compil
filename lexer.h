@@ -3,19 +3,17 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#define TOKEN_PLUS -1
+#define TOKEN_MULTIPLY -2
+#define TOKEN_LPAREN -3
+#define TOKEN_RPAREN -4
+#define TOKEN_NUMBER -5
+#define TOKEN_EOF -6
+
 #include <stdbool.h>
 
-typedef enum {
-    TOKEN_PLUS,
-    TOKEN_MULTIPLY,
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_NUMBER,
-    TOKEN_EOF
-} TokenType;
-
 typedef struct { // Structur for token representation
-    TokenType type;
+    int type;
     double value;
 } Token;
 

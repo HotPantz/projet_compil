@@ -40,20 +40,31 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
         { PROD_F_VAL, 1 }              // F -> val
     };
     Stack* stack = createStack(100);
-    push(stack, 0); // push the initial state
+    Stack* act = createStack(100);
+    
+    // push the initial state
+    push(stack, 0);
+    push(act, 0);
 
     int i = 0;
     while (1) {
         int state = stack->data[stack->top];
 
         Token token = tokens[i];
-        token.type++;
-
-        // lookup the action in the parsing table based on the current state and token
-        int action = parsingTable[state][token.type];
+        if(token.type == TOKEN_NUMBER) { 
+            push(stack, token.value);
+        }
+        else {
+            push(stack, token.type);
+        }
 
         printf("Current state: %d\n", state);
         printf("Current token type: %d\n", token.type);
+
+        // lookup the action in the parsing table based on the current state and token
+        int action = parsingTable[state][(-1) * token.type];
+
+
         printf("Action: %d\n", action);
 
         switch (action) {
@@ -63,7 +74,7 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 ++i;
                 break;
             case D5:
-                // shift
+                // shift 
                 push(stack, action);
                 ++i;
                 break;
@@ -84,13 +95,21 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                 break;
             case ACC:
                 // accept
+                // print the contents of the stack
+                printf("Stack contents: ");
+                for (int j = 0; j <= stack->top; ++j) {
+                    printf("%d ", stack->data[j]);
+                }
+                printf("\n");
                 free(stack->data);
                 free(stack);
+                free(act->data);
+                free(act);
                 return 0;
             case R1: {
                 // reduce
                 GrammarRule rule = grammar[0]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                for (int j = 0; j < 2*rule.length+1; ++j) {       //on fait 2*rule.length car on a besoin de pop 2 fois plus de tokens que la longueur de la règle puisque qu'il y a les tokens et les états
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -102,14 +121,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][E];
+                int newState = gotoTable[stack->data[stack->top]][E-E];
+                push(stack, E);
                 push(stack, newState);
                 break;
             }
             case R2: {
                 // reduce
                 GrammarRule rule = grammar[1]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                for (int j = 0; j < 2*rule.length+1; ++j) {
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -121,14 +141,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][E];
+                int newState = gotoTable[stack->data[stack->top]][E-E];
+                push(stack, E);
                 push(stack, newState);
                 break;
             }
             case R3: {
                 // reduce
                 GrammarRule rule = grammar[2]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                for (int j = 0; j < 2*rule.length+1; ++j) {
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -140,14 +161,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][T];
+                int newState = gotoTable[stack->data[stack->top]][T-E];
+                push(stack, T);
                 push(stack, newState);
                 break;
             }
             case R4: {
                 // reduce
                 GrammarRule rule = grammar[3]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                for (int j = 0; j < 2*rule.length+1; ++j) {
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -159,14 +181,15 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][T];
+                int newState = gotoTable[stack->data[stack->top]][T-E];
+                push(stack, T);
                 push(stack, newState);
                 break;
             }
             case R5: {
                 // reduce
                 GrammarRule rule = grammar[4]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                for (int j = 0; j < 2*rule.length+1; ++j) {
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -178,14 +201,17 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][F];
+                int newState = gotoTable[stack->data[stack->top]][F-E];
+                push(stack, F);
                 push(stack, newState);
                 break;
             }
             case R6: {
                 // reduce
                 GrammarRule rule = grammar[5]; // use the grammar here
-                for (int j = 0; j < rule.length; ++j) {
+                printf("rule.length = %d\n", rule.length);
+                for (int j = 0; j < 2*rule.length+1; ++j) {
+                    printf("1 tour de boucle\n");
                     pop(stack);
                 }
                 // check if the stack is empty
@@ -197,13 +223,16 @@ int parse(Token* tokens, int parsingTable[NUM_STATES][NUM_SYMBOLS], int gotoTabl
                     return -1;
                 }
                 // push the new state based on the left-hand side of the rule and the current state
-                int newState = gotoTable[stack->data[stack->top]][F];
+                int newState = gotoTable[stack->data[stack->top]][F-E];
+                printf("state = %d | newState = %d\n", stack->data[stack->top], newState);
+                push(stack, F);
                 push(stack, newState);
                 break;
             }
             default:
                 // error
                 printf("Syntax error\n");
+                printf("action = %d\n", action);
                 free(stack->data);
                 free(stack);
                 return -1;
