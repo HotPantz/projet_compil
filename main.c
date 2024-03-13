@@ -90,32 +90,9 @@ int main() {
         
         // Read the input
         Token* tokens = tokenize(input);
-
-        for (int i = 0; tokens[i].type != TOKEN_EOF; ++i) {
-            switch (tokens[i].type) {
-                case TOKEN_NUMBER:
-                    break;
-                case TOKEN_PLUS:
-                    break;
-                case TOKEN_MULTIPLY:
-                    break;
-                case TOKEN_LPAREN:
-                    break;
-                case TOKEN_RPAREN:
-                    break;
-                default:
-                    printf("Unknown token ");
-            }
-        }
-
+        
         // Call the parse function
         parse(tokens, parsingTable, gotoTable);
-
-        // Evaluate the parsed expression
-        //double result = evaluateExpression(tokens);
-
-        // Print the result
-        //printf("Result: %.2f\n", result);
     
     }
 
